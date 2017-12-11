@@ -1,0 +1,31 @@
+"""
+Tests are based on the torch7 bindings for warp-ctc. Reference numbers are also obtained from the tests.
+"""
+import unittest
+import numpy as np
+import ctc
+from ctc import CTCLoss
+
+ctc_loss = CTCLoss()
+places = 5
+
+
+def run_grads(label_sizes, labels, probs, sizes):
+    cost = ctc_loss.ctc_loss(probs, labels, sizes, label_sizes)
+    #grads = probs.grad
+    #print(grads.view(grads.size(0) * grads.size(1), grads.size(2)))
+    return cost
+
+
+class TestCases(unittest.TestCase):
+    def test_simple(self):
+        probs = np.ascontiguousarray(np.array([[[0.1, 0.6, 0.1, 0.1, 0.1], [0.1, 0.1, 0.6, 0.1, 0.1]]]).transpose(0, 1, 2))
+        labels = np.array([1, 2])
+        label_sizes = np.array([2])
+        sizes = np.array([2])
+        cpu_cost = run_grads(label_sizes, labels, probs, sizes)
+        expected_cost = 2.4628584384918
+        self.assertAlmostEqual(cpu_cost, expected_cost, places)
+
+if __name__ == '__main__':
+    unittest.main()

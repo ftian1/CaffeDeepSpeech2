@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/ctc.h
+cstddef
+-
+
+/home/ftian/ds2/caffe/models/intel_optimized_models/CaffeDeepSpeech2/ctc/tests/test.h
+stdexcept
+-
+vector
+-
+random
+-
+ctc.h
+-
+thrust/system_error.h
+-
+thrust/system/cuda/error.h
+-
+
+/home/ftian/ds2/caffe/models/intel_optimized_models/CaffeDeepSpeech2/ctc/tests/test_cpu.cpp
+cmath
+-
+random
+-
+tuple
+-
+vector
+-
+iostream
+-
+ctc.h
+-
+test.h
+/home/ftian/ds2/caffe/models/intel_optimized_models/CaffeDeepSpeech2/ctc/tests/test.h
+

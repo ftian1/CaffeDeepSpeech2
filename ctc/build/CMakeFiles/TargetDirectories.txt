@@ -1,0 +1,2 @@
+/home/ftian/ds2/caffe/models/intel_optimized_models/CaffeDeepSpeech2/ctc/build/CMakeFiles/test_cpu.dir
+/home/ftian/ds2/caffe/models/intel_optimized_models/CaffeDeepSpeech2/ctc/build/CMakeFiles/warpctc.dir

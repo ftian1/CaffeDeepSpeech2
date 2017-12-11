@@ -1,0 +1,203 @@
+name: "Deep Speech 2 Caffe Layers"
+layer {
+  name: 'input-data'
+  type: 'Python'
+  top: 'inputs'
+  top: 'targets'
+  top: 'input_percentages'
+  top: 'target_sizes'
+  python_param {
+    module: 'ds2_data_layer'
+    layer: 'DS2DataLayer'
+  }
+}
+
+layer {
+  name: "conv1_1"
+  type: "Convolution"
+  bottom: "inputs"
+  top: "conv1_1"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 32
+    pad_h: 0
+    pad_w: 10
+    kernel_h:41
+    kernel_w:11
+    stride_h:2
+    stride_w:2
+  }
+}
+layer {
+  bottom: "conv1_1"
+  name: "conv1_1_bn"
+  top: "conv1_1_bn"
+  type: "BatchNorm"
+  batch_norm_param {
+
+  }
+} 
+layer {
+  name: "relu1_1"
+  type: "ReLU"
+  bottom: "conv1_1_bn"
+  top: "conv1_1_relu"
+}
+layer {
+  name: "conv2_1"
+  type: "Convolution"
+  bottom: "conv1_1_relu"
+  top: "conv2_1"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 32
+    kernel_h:21
+    kernel_w:11
+    stride_h:2
+    stride_w:1
+  }
+}
+layer {
+  bottom: "conv2_1"
+  name: "conv2_1_bn"
+  top: "conv2_1_bn"
+  type: "BatchNorm"
+  batch_norm_param {
+
+  }
+} 
+layer {
+  name: "relu2_1"
+  type: "ReLU"
+  bottom: "conv2_1_bn"
+  top: "conv2_1_relu"
+}
+layer {
+  name: 'transpose'
+  type: 'Python'
+  bottom: 'conv2_1_relu'
+  top: 'conv2_1_relu_trans'
+  python_param {
+    module: 'ds2_transpose_layer'
+    layer: 'DS2TransposeLayer'
+  }
+}
+layer {
+  name: "lstm1"
+  type: "Lstm2"
+  bottom: "conv2_1_relu_trans"
+  top: "lstm1"
+  lstm_param {
+    num_output: 800
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  bottom: "lstm1"
+  name: "lstm1_bn"
+  top: "lstm1_bn"
+  type: "BatchNorm"
+  batch_norm_param {
+
+  }
+}
+layer {
+  name: "lstm2"
+  type: "Lstm2"
+  bottom: "lstm1_bn"
+  top: "lstm2"
+  lstm_param {
+    num_output: 800
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  bottom: "lstm2"
+  name: "lstm2_bn"
+  top: "lstm2_bn"
+  type: "BatchNorm"
+  batch_norm_param {
+
+  }
+}
+layer {
+  name: "lstm3"
+  type: "Lstm2"
+  bottom: "lstm2_bn"
+  top: "lstm3"
+  lstm_param {
+    num_output: 800
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  bottom: "lstm3"
+  name: "lstm3_bn"
+  top: "lstm3_bn"
+  type: "BatchNorm"
+  batch_norm_param {
+
+  }
+}
+layer {
+  name: "lstm4"
+  type: "Lstm2"
+  bottom: "lstm3_bn"
+  top: "lstm4"
+  lstm_param {
+    num_output: 800
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  bottom: "lstm4"
+  name: "lstm4_bn"
+  top: "lstm4_bn"
+  type: "BatchNorm"
+  batch_norm_param {
+
+  }
+}
+layer {
+  name: "fc"
+  type: "InnerProduct"
+  bottom: "lstm4_bn"
+  top: "fc"
+  inner_product_param {
+    num_output: 29
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}  
