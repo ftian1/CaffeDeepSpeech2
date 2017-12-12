@@ -20,7 +20,6 @@ class DS2ContFillerLayer(caffe.Layer):
 
     def forward(self, bottom, top):
         """Get blobs and copy them into this layer's top blob vector."""
-	print type(top[0])
 	top[0].data[...]  = 1
 	top[0].data[:,0] = 0
 

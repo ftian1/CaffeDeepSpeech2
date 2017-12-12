@@ -107,7 +107,6 @@ ctcStatus_t get_workspace_size(const int* const label_lengths,
     // This is the max of all S and T for all examples in the minibatch.
     int maxL = *std::max_element(label_lengths, label_lengths + minibatch);
     int maxT = *std::max_element(input_lengths, input_lengths + minibatch);
-std::cout << "get_ws_size " <<  maxL << "|" << maxT << std::endl;
 
     const int S = 2 * maxL + 1;
 

@@ -119,15 +119,11 @@ class SpectrogramDataset(object):
         D = librosa.stft(y, n_fft=n_fft, hop_length=hop_length,
                          win_length=win_length, window=self.window)
         spect, phase = librosa.magphase(D)
-        # S = log(S+1)
         spect = np.log1p(spect)
-        #spect = torch.FloatTensor(spect)
         spect = spect.astype(np.float, copy=False)
         if self.normalize:
             mean = spect.mean()
             std = spect.std()
-            #spect.add_(-mean)
-            #spect.div_(std)
             spect += -mean
             spect /= std
 
@@ -145,9 +141,6 @@ class SpectrogramDataset(object):
         for ids in self.bins:
             np.random.shuffle(ids)
             yield ids
-
-    def __len__(self):
-        return len(self.bins)
 
     def shuffle(self):
         np.random.shuffle(self.bins)

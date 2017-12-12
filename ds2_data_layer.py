@@ -72,16 +72,12 @@ class DS2DataLayer(caffe.Layer):
         """Return the blobs to be used for the next minibatch.
         """
     	def func(p):
-		#print "p: {}".format(p)
-		#print "iter {}".format(type(p[0]))
         	return p[0].shape[1]
         dataset = self.train_dataset
         idx = dataset.get_next_batches()
 	batch = []
-        #print "get_next_minibatch {}".format(idx)
 	for i in idx:
         	batch.append(dataset[i])
-	#print batch
     	longest_sample = max(batch, key=func)[0]
    	freq_size = longest_sample.shape[0]
     	minibatch_size = len(batch)

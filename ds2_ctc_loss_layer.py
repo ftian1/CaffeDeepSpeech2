@@ -24,19 +24,16 @@ class DS2CtcLossLayer(caffe.Layer):
     def forward(self, bottom, top):
         """Get blobs and copy them into this layer's top blob vector."""
 	acts = bottom[0].data
-	print "DS2CtcLossLayer bot0 shape {}".format(acts.shape)
 	targets = bottom[1].data
 	input_percentages = bottom[2].data
 	target_sizes = bottom[3].data
 	sizes = input_percentages * acts.shape[0]
 	self.ctcloss.ctc_loss(acts, targets, sizes.astype(np.int, copy=False), target_sizes)
-	print "DS2CtcLossLayer self.costs type {} shape {}".format(type(self.ctcloss.costs), self.ctcloss.costs.shape)
 	top[0].data[0] = self.ctcloss.costs.sum() / 20
-	print "loss is {}".format(top[0].data[0])
 
     def backward(self, top, propagate_down, bottom):
         """This layer does not propagate gradients."""
-	bottom[0].diff[...] = self.ctcloss.grad.astype(np.float32, copy=False)
+	bottom[0].diff[...] = self.ctcloss.grads.astype(np.float32, copy=False)
         pass
 
     def reshape(self, bottom, top):

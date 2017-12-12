@@ -87,10 +87,39 @@ layer {
   top: "conv2_1_relu"
 }
 layer {
+  name: "transpose"
+  type: "Permute"
+  bottom: "conv2_1_relu"
+  top: "conv2_1_relu_perm"
+  permute_param {
+    order: 3
+    order: 0
+    order: 1
+    order: 2
+  }
+}
+layer {
+   bottom: "conv2_1_relu_perm"
+   top: "conv2_1_relu_reshape"
+   name: "conv2_1_reshape"
+   type: "Reshape"
+   reshape_param { shape { dim: 0 dim: 0 dim: -1 } }
+}  
+layer {
+  name: 'ContFiller'
+  type: 'Python'
+  bottom: 'conv2_1_relu_reshape'
+  top: 'lstm1_cont_filler'
+  python_param {
+    module: 'ds2_cont_filler_layer'
+    layer: 'DS2ContFillerLayer'
+  }
+}
+layer {
   name: "lstm1"
-  type: "RNN"
-  bottom: "conv2_1_bn"
-  #bottom: "lstm1"
+  type: "LSTM"
+  bottom: "conv2_1_relu_reshape"
+  bottom: "lstm1_cont_filler"
   top: "lstm1"
   recurrent_param {
     num_output: 800
@@ -101,18 +130,20 @@ layer {
   }
 }
 layer {
-  bottom: "lstm1"
-  name: "lstm1_bn"
-  top: "lstm1_bn"
-  type: "BatchNorm"
-  batch_norm_param {
-
+  name: 'ContFiller'
+  type: 'Python'
+  bottom: 'lstm1'
+  top: 'lstm2_cont_filler'
+  python_param {
+    module: 'ds2_cont_filler_layer'
+    layer: 'DS2ContFillerLayer'
   }
 }
 layer {
   name: "lstm2"
-  type: "RNN"
-  bottom: "lstm1_bn"
+  type: "LSTM"
+  bottom: "lstm1"
+  bottom: "lstm2_cont_filler"
   top: "lstm2"
   recurrent_param {
     num_output: 800
@@ -123,18 +154,20 @@ layer {
   }
 }
 layer {
-  bottom: "lstm2"
-  name: "lstm2_bn"
-  top: "lstm2_bn"
-  type: "BatchNorm"
-  batch_norm_param {
-
+  name: 'ContFiller'
+  type: 'Python'
+  bottom: 'lstm2'
+  top: 'lstm3_cont_filler'
+  python_param {
+    module: 'ds2_cont_filler_layer'
+    layer: 'DS2ContFillerLayer'
   }
 }
 layer {
   name: "lstm3"
-  type: "RNN"
-  bottom: "lstm2_bn"
+  type: "LSTM"
+  bottom: "lstm2"
+  bottom: "lstm3_cont_filler"
   top: "lstm3"
   recurrent_param {
     num_output: 800
@@ -145,18 +178,20 @@ layer {
   }
 }
 layer {
-  bottom: "lstm3"
-  name: "lstm3_bn"
-  top: "lstm3_bn"
-  type: "BatchNorm"
-  batch_norm_param {
-
+  name: 'ContFiller'
+  type: 'Python'
+  bottom: 'lstm3'
+  top: 'lstm4_cont_filler'
+  python_param {
+    module: 'ds2_cont_filler_layer'
+    layer: 'DS2ContFillerLayer'
   }
 }
 layer {
   name: "lstm4"
-  type: "RNN"
-  bottom: "lstm3_bn"
+  type: "LSTM"
+  bottom: "lstm3"
+  bottom: "lstm4_cont_filler"
   top: "lstm4"
   recurrent_param {
     num_output: 800
@@ -167,11 +202,53 @@ layer {
   }
 }
 layer {
-  bottom: "lstm4"
-  name: "lstm4_bn"
-  top: "lstm4_bn"
-  type: "BatchNorm"
-  batch_norm_param {
-
+   bottom: "lstm4"
+   top: "lstm4_reshape"
+   name: "lstm_reshape"
+   type: "Reshape"
+   reshape_param { shape { dim: -1 dim: 1 dim: 0 } }
+} 
+layer {
+   bottom: "lstm4_reshape"
+   top: "lstm4_reshape2"
+   name: "lstm_reshape2"
+   type: "Reshape"
+   reshape_param { shape { dim: 0 dim: -1 } }
+}
+layer {
+  name: "fc"
+  type: "InnerProduct"
+  bottom: "lstm4_reshape2"
+  top: "fc"
+  inner_product_param {
+    num_output: 29
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+} 
+layer {
+   bottom: "fc"
+   top: "fc_reshape"
+   name: "fc_reshape"
+   type: "Reshape"
+   reshape_param { shape { dim: -1 dim: 20 dim: 29 } }
+}
+layer {
+  name: 'ctcloss'
+  type: 'Python'
+  bottom: 'fc_reshape'
+  bottom: 'targets'
+  bottom: 'input_percentages'
+  bottom: 'target_sizes'
+  top: 'ctcloss'
+  python_param {
+    module: 'ds2_ctc_loss_layer'
+    layer: 'DS2CtcLossLayer'
   }
 }
